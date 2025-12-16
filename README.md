@@ -29,6 +29,26 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## UX Design Requirements
+
+### Knowledge Base
+- **Sidebar listing**: All files displayed with metadata (filename, size, upload date)
+- **Drag-and-drop upload**: Support for file uploads with progress bars and status indicators
+- **File type icons**: Visual indicators for different file types (PDF, DOCX, TXT, etc.)
+- **Confirmation modals**: Required for delete and update actions to prevent accidental changes
+
+### Chat
+- **Two-pane layout**: Left pane for conversation history, right pane for retrieved context and citations
+- **Streaming responses**: Real-time response display with typing indicators
+- **Expandable/collapsible context**: Retrieved context chunks can be expanded or collapsed for better readability
+- **Conversation history**: Accessible via sidebar with timestamps and ability to rename conversations
+
+### Global UX
+- **Responsive design**: Fully functional on desktop and mobile devices
+- **Accessibility support**: ARIA labels and keyboard navigation for all interactive elements
+- **Toast notifications**: Success and error feedback using toast/notification components
+- **Consistent styling**: Design system using TailwindCSS or Material UI for uniform appearance across the application
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

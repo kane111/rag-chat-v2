@@ -1,408 +1,292 @@
-# RAG Chat Application - UX Design Implementation Guide
+# Getting Started with RAG Chat v2
 
-## 📋 Overview
+## Overview
 
-Your RAG Chat application now fully implements the UX Design Requirements with professional, accessible components and a polished user experience.
+This guide will help you set up and run the RAG Chat v2 application locally. Follow the steps below to get started.
 
-## 🎯 What's Been Implemented
+---
 
-### 1. **Knowledge Base Features** ✅
+## Prerequisites
 
-#### File Management
-- **Sidebar File Listing**: Complete metadata display
-  - File names with overflow tooltips
-  - File icons (PDF 🔴, DOCX 🔵, TXT ⚪)
-  - File sizes in MB
-  - Upload dates
-  - Docling conversion badges
-  - File count indicator
+Before you begin, ensure you have the following installed:
 
-#### Upload System
-- **Drag-and-Drop Zone**
-  - Visual feedback during drag
-  - Progress bar with percentage
-  - File validation (PDF, DOCX, TXT only)
-  - Success/error notifications
-  - Click-to-browse fallback
+### 1. Node.js and npm
+- **Version**: Node.js 18 or higher
+- **Download**: https://nodejs.org/
+- **Verify installation**:
+  ```bash
+  node --version
+  npm --version
+  ```
 
-#### Delete Protection
-- **Confirmation Modal**
-  - Prevents accidental deletion
-  - Clear warning message
-  - Danger-styled confirmation
-  - Non-intrusive overlay
+### 2. Python
+- **Version**: Python 3.11 or higher
+- **Download**: https://www.python.org/downloads/
+- **Verify installation**:
+  ```bash
+  python --version
+  ```
 
-### 2. **Chat Interface** ✅
+### 3. Ollama (for AI models)
+- **Download**: https://ollama.ai
+- **Install** the appropriate version for your OS
+- **Start Ollama**: 
+  ```bash
+  ollama serve
+  ```
+- **Pull required models**:
+  ```bash
+  ollama pull gemma3:4b
+  ollama pull embeddinggemma:latest
+  ```
 
-#### Layout
-- **Two-Pane Design**
-  - Query input on the left
-  - Retrieved context on the right
-  - Responsive stacking on mobile
-  - Flexible height management
+---
 
-#### Real-Time Features
-- **Streaming Responses**
-  - Live text generation
-  - Typing indicator (animated dot)
-  - Auto-scroll to latest content
-  
-#### Context Management
-- **Expandable Chunks**
-  - Click to expand/collapse
-  - Citation formatting with doc, page, section
-  - Scrollable for long content
-  - Visual hierarchy
+## Installation
 
-#### Conversation Tools
-- **Conversation History**
-  - All past conversations listed
-  - Relative timestamps (e.g., "2h ago")
-  - Inline rename functionality
-  - Current conversation highlighted
-  - Scrollable history panel
-
-### 3. **Global UX** ✅
-
-#### Responsive Design
-- Mobile-first CSS approach
-- Responsive typography
-- Touch-friendly button sizes (44px minimum)
-- Adapts from 1 to 3 columns based on screen size
-- Proper spacing at all breakpoints
-
-#### Accessibility
-- **ARIA Support**
-  - Labels on all buttons
-  - Live regions for notifications
-  - Dialog roles on modals
-  
-- **Keyboard Navigation**
-  - Tab through all elements
-  - Ctrl+Enter to submit
-  - Escape to close modals
-  - Enter to save in edit mode
-
-- **Color Accessibility**
-  - WCAG AA contrast standards
-  - Distinct colors for different actions
-  - Not reliant on color alone
-
-#### Notifications
-- **Toast System**
-  - 4 types: success, error, info, warning
-  - Auto-dismiss or manual close
-  - Stacked display
-  - Icon + message + close button
-  - Smooth animations
-
-#### Design System
-- **Consistent Styling**
-  - TailwindCSS throughout
-  - Dark theme with gradient background
-  - Emerald for positive actions
-  - Rose for destructive actions
-  - Sky for secondary actions
-  - Hover and focus states everywhere
-
-## 📁 Project Structure
-
-```
-d:\test_nextjs\rag-chat-v2\
-├── app/
-│   ├── components/          # Reusable UI components
-│   │   ├── Toast.tsx        # Notification system
-│   │   ├── Modal.tsx        # Dialog component
-│   │   ├── FileUploadZone.tsx
-│   │   ├── FileIcon.tsx
-│   │   ├── FileListItem.tsx
-│   │   ├── ConversationHistory.tsx
-│   │   ├── ContextChunks.tsx
-│   │   └── index.ts         # Component exports
-│   ├── page.tsx             # Main app (enhanced)
-│   ├── layout.tsx           # Root layout
-│   └── globals.css          # Global styles
-├── README.md                # Updated with requirements
-├── IMPLEMENTATION_SUMMARY.md # Detailed summary
-├── UX_IMPLEMENTATION.md     # Technical documentation
-└── QUICK_REFERENCE.md       # Developer guide
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-- Python backend running on localhost:8000
-
-### Installation
+### Step 1: Clone the Repository (if applicable)
 ```bash
-cd d:\test_nextjs\rag-chat-v2
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+git clone <repository-url>
+cd rag-chat-v2
 ```
 
-### Backend Setup
-Ensure your FastAPI backend is running:
+### Step 2: Backend Setup
+
+#### 2.1. Navigate to backend directory
 ```bash
 cd backend
-python -m venv venv
-source venv/Scripts/activate  # Windows
-pip install -r requirements.txt
-uvicorn main:app --reload
 ```
 
-## 📖 Component Documentation
-
-### 1. Toast Notifications
-**File**: `app/components/Toast.tsx`
-
-```typescript
-const toast = useToast();
-toast.success("Operation completed");
-toast.error("An error occurred");
-toast.info("Please note...");
-toast.warning("Be careful!");
-```
-
-**Features**:
-- Auto-dismiss after 3 seconds
-- Manual dismiss button
-- Multiple toasts stack
-- Icon for each type
-- Smooth animations
-
-### 2. Modal Dialog
-**File**: `app/components/Modal.tsx`
-
-```typescript
-<Modal
-  isOpen={isOpen}
-  title="Confirm Delete"
-  description="This cannot be undone."
-  onClose={() => setOpen(false)}
-  onConfirm={() => handleDelete()}
-  confirmText="Delete"
-  confirmVariant="danger"
-/>
-```
-
-**Features**:
-- Backdrop click to dismiss
-- Keyboard support (Escape)
-- Custom content support
-- Two button variants (primary/danger)
-
-### 3. File Upload
-**File**: `app/components/FileUploadZone.tsx`
-
-```typescript
-<FileUploadZone
-  onUpload={handleUpload}
-  disabled={isUploading}
-/>
-```
-
-**Features**:
-- Full drag-and-drop support
-- Progress bar with percentage
-- File type validation
-- Visual feedback states
-
-### 4. File Icons
-**File**: `app/components/FileIcon.tsx`
-
-```typescript
-<FileIcon filetype="pdf" className="w-5 h-5" />
-```
-
-**Features**:
-- Color-coded by type
-- Customizable size
-- Fallback for unknown types
-
-### 5. File List Item
-**File**: `app/components/FileListItem.tsx`
-
-**Displays**:
-- File metadata (name, type, size, date)
-- Action buttons (view chunks, questions, delete)
-- Docling conversion status
-- Loading states
-
-### 6. Conversation History
-**File**: `app/components/ConversationHistory.tsx`
-
-**Features**:
-- Lists all conversations
-- Relative timestamps
-- Inline rename with Enter/Escape
-- Active conversation highlighting
-- Scrollable list
-
-### 7. Context Chunks
-**File**: `app/components/ContextChunks.tsx`
-
-**Features**:
-- Expandable/collapsible display
-- Citation formatting
-- Smooth transitions
-- Scrollable content
-- Visual hierarchy
-
-## 🎨 Design Tokens
-
-### Colors
-```
-Primary (Success):    Emerald   (#10b981)
-Secondary (Chat):     Sky       (#0284c7)
-Accent (Chunks):      Purple    (#a855f7)
-Danger (Delete):      Rose      (#f43f5e)
-Warning:              Yellow    (#eab308)
-Background:           Slate     (#0f172a to #000)
-Text:                 Slate-50  (#f8fafc)
-```
-
-### Typography
-- Headings: `font-semibold` or `font-bold`
-- Body: `text-sm` or `text-base`
-- Labels: `text-xs` uppercase
-- Monospace: for code/technical content
-
-### Spacing
-- Padding: `px-2 py-1`, `px-4 py-2`, `px-6 py-3`
-- Gap: `gap-2`, `gap-3`, `gap-4`, `gap-6`
-- Margin: Used sparingly with `mt-`, `mb-`, `ml-`
-
-## ⌨️ Keyboard Navigation
-
-| Key          | Action                   |
-| ------------ | ------------------------ |
-| `Tab`        | Navigate to next element |
-| `Shift+Tab`  | Navigate to previous     |
-| `Enter`      | Submit/Confirm           |
-| `Escape`     | Cancel/Close             |
-| `Ctrl+Enter` | Submit query             |
-| `Space`      | Toggle/Activate          |
-
-## 📱 Responsive Breakpoints
-
-| Breakpoint | Width      | Layout                 |
-| ---------- | ---------- | ---------------------- |
-| Mobile     | < 640px    | Single column, stacked |
-| Tablet     | 640-1024px | Flexible               |
-| Desktop    | ≥ 1024px   | Side-by-side layout    |
-
-## 🔍 Testing Checklist
-
-### Functionality
-- [ ] Upload a PDF file
-- [ ] Watch progress bar fill
-- [ ] See success toast
-- [ ] Delete a file
-- [ ] Confirm in modal
-- [ ] Type a question
-- [ ] See streaming response
-- [ ] Click context chunk
-- [ ] See chunk expand
-- [ ] Create conversation
-- [ ] Rename conversation
-- [ ] Select conversation
-- [ ] Query with Ctrl+Enter
-
-### Accessibility
-- [ ] Tab through all elements
-- [ ] Try keyboard shortcuts
-- [ ] Test with screen reader
-- [ ] Check color contrast
-- [ ] Verify focus states
-- [ ] Test on mobile
-- [ ] Test without mouse
-
-### Responsive
-- [ ] Desktop view
-- [ ] Tablet view (768px)
-- [ ] Mobile view (375px)
-- [ ] Very small mobile (320px)
-- [ ] Large desktop (1920px)
-
-## 🐛 Troubleshooting
-
-### Issue: Components not rendering
-**Solution**: Clear `.next` folder and rebuild
+#### 2.2. Create a virtual environment
 ```bash
-rm -rf .next
+python -m venv .venv
+```
+
+#### 2.3. Activate the virtual environment
+**On Windows (PowerShell)**:
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+**On Windows (Command Prompt)**:
+```cmd
+.venv\Scripts\activate.bat
+```
+
+**On Linux/Mac**:
+```bash
+source .venv/bin/activate
+```
+
+#### 2.4. Install Python dependencies
+```bash
+pip install -r requirements.txt
+```
+
+#### 2.5. (Optional) Create a .env file
+Create a `.env` file in the `backend/` directory with custom settings:
+```bash
+RAG_allowed_origins=http://localhost:3000,http://127.0.0.1:3000
+RAG_ollama_base_url=http://localhost:11434
+RAG_embedding_model=embeddinggemma:latest
+RAG_chat_model=gemma3:4b
+RAG_top_k=12
+RAG_max_file_mb=50
+```
+
+#### 2.6. Start the backend server
+```bash
+uvicorn backend.main:app --reload
+```
+
+The backend will start on **http://localhost:8000**
+
+You should see output like:
+```
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process
+INFO:     Started server process
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+
+### Step 3: Frontend Setup
+
+Open a **new terminal window** (keep the backend running).
+
+#### 3.1. Navigate to the project root
+```bash
+cd d:\test_nextjs\rag-chat-v2
+```
+
+#### 3.2. Install Node.js dependencies
+```bash
+npm install
+```
+
+#### 3.3. Start the development server
+```bash
 npm run dev
 ```
 
-### Issue: Styles look wrong
-**Solution**: Ensure TailwindCSS is processing all files
-Check `tailwind.config.ts` includes `app/**/*.{js,ts,jsx,tsx}`
+The frontend will start on **http://localhost:3000**
 
-### Issue: API calls failing
-**Solution**: Verify backend is running on localhost:8000
-```bash
-python -m uvicorn backend.main:app --reload
+You should see:
+```
+  ▲ Next.js 16.0.10
+  - Local:        http://localhost:3000
+  - Network:      http://<your-ip>:3000
+
+  ✓ Ready in 2.1s
 ```
 
-### Issue: Modal not dismissing
-**Solution**: Check `onClose` handler is updating state
+#### 3.4. Open the application
+Open your browser and navigate to: **http://localhost:3000**
 
-### Issue: Toast not appearing
-**Solution**: Ensure `<ToastContainer>` is rendered in layout
+---
 
-## 📚 Additional Resources
+## First-Time Configuration
 
-- [TailwindCSS Docs](https://tailwindcss.com)
-- [React Docs](https://react.dev)
-- [Next.js Docs](https://nextjs.org/docs)
-- [ARIA Guidelines](https://www.w3.org/WAI/ARIA/)
+### 1. Configure AI Models
 
-## 🎓 Learning Resources
+Once the app is running, navigate to the **Config page**: http://localhost:3000/config
 
-1. **UX_IMPLEMENTATION.md** - Technical details and architecture
-2. **QUICK_REFERENCE.md** - Quick lookup for components
-3. **IMPLEMENTATION_SUMMARY.md** - Complete feature breakdown
-4. **README.md** - Project overview and setup
+1. **Select Chat Model**: Choose `gemma3:4b` (or any model you pulled)
+2. **Select Embedding Model**: Choose `embeddinggemma:latest`
+3. Click **Save Selection**
 
-## 💡 Best Practices
+### 2. Configure RAG Settings
 
-### When Adding Features
-1. Use existing components when possible
-2. Follow established color scheme
-3. Add aria-labels to new buttons
-4. Test keyboard navigation
-5. Consider mobile layout
-6. Use toast for feedback
+On the same config page, switch to the **RAG Config** tab:
 
-### When Modifying Components
-1. Maintain backward compatibility
-2. Update TypeScript types
-3. Test all variants
-4. Document changes in comments
-5. Run accessibility checks
+- **Retrieval Strategy**: Start with `similarity` or `mmr`
+- **Top K**: Set to `10-15` for best results
+- **Score Threshold**: Set to `0.3-0.5` for balanced filtering
+- **MMR Lambda**: Set to `0.5` for balanced diversity
 
-### Code Style
-- Use TypeScript for type safety
-- Keep components focused and reusable
-- Use TailwindCSS, not inline styles
-- Add comments for complex logic
-- Test in browser before committing
+Click **Save Changes**
 
-## 📞 Support
+---
 
-For issues or questions:
-1. Check QUICK_REFERENCE.md for component usage
-2. Review IMPLEMENTATION_SUMMARY.md for features
-3. Check browser console for errors
-4. Review component prop types in TypeScript
+## Using the Application
 
-## 🎉 Conclusion
+### 1. Upload Documents
 
-Your RAG Chat application now has a professional, accessible, and user-friendly interface that meets all UX requirements. The component library is reusable, well-documented, and ready for future enhancements.
+1. Click the **sidebar toggle** button in the header
+2. Drag and drop files into the upload zone, or click to browse
+3. Supported formats: **PDF, DOCX, TXT**
+4. Wait for the upload to complete
 
-Happy coding! 🚀
+Files will be automatically processed and indexed.
+
+### 2. Ask Questions
+
+1. (Optional) Select specific files from the sidebar
+2. Type your question in the chat input
+3. Press **Enter** or **Ctrl+Enter** to send
+4. Watch the real-time streaming response
+
+### 3. View Context
+
+- Expand the **context chunks** panel to see retrieved sources
+- Click on file names to view more details
+- See **citations** with page numbers and sections
+
+### 4. Manage Files
+
+- Click the **chunks icon** to view all chunks in a file
+- Click the **questions icon** to see suggested questions
+- Click **delete** to remove a file (with confirmation)
+
+---
+
+## Troubleshooting
+
+### Backend Not Starting
+
+**Problem**: `ModuleNotFoundError` or import errors
+
+**Solution**:
+1. Ensure virtual environment is activated
+2. Reinstall dependencies: `pip install -r requirements.txt`
+3. Check Python version: `python --version` (should be 3.11+)
+
+---
+
+### Port Already in Use
+
+**Problem**: `Address already in use`
+
+**Solution**:
+- Backend: Change port with `uvicorn backend.main:app --reload --port 8010`
+- Frontend: Kill the process or use a different port: `PORT=3001 npm run dev`
+
+---
+
+### Ollama Connection Failed
+
+**Problem**: Cannot connect to Ollama at `http://localhost:11434`
+
+**Solution**:
+1. Ensure Ollama is installed
+2. Start Ollama: `ollama serve`
+3. Verify it's running: Open http://localhost:11434 in a browser
+4. Check the backend `.env` file for correct `RAG_ollama_base_url`
+
+---
+
+### Models Not Showing Up
+
+**Problem**: No models available in the config dropdown
+
+**Solution**:
+1. Pull models: `ollama pull gemma3:4b` and `ollama pull embeddinggemma:latest`
+2. List models: `ollama list`
+3. Restart the backend server
+4. Check backend logs for errors
+
+---
+
+### CORS Errors in Browser
+
+**Problem**: `CORS policy: No 'Access-Control-Allow-Origin' header`
+
+**Solution**:
+1. Check `RAG_allowed_origins` in backend `.env` file
+2. Add your frontend URL: `RAG_allowed_origins=http://localhost:3000`
+3. Restart the backend server
+
+---
+
+### Frontend Build Errors
+
+**Problem**: TypeScript or build errors
+
+**Solution**:
+1. Delete `.next` folder: `rm -rf .next`
+2. Delete `node_modules`: `rm -rf node_modules`
+3. Reinstall: `npm install`
+4. Restart: `npm run dev`
+
+---
+
+## Next Steps
+
+Now that you have the application running:
+
+1. **Upload some documents** to build your knowledge base
+2. **Experiment with RAG settings** to optimize retrieval
+3. **Try different models** to see which works best for your use case
+4. **Read the [USER_GUIDE.md](USER_GUIDE.md)** for detailed feature documentation
+
+---
+
+## Additional Resources
+
+- **[README.md](README.md)** - Project overview
+- **[API_INTEGRATION.md](API_INTEGRATION.md)** - API documentation
+- **[USER_GUIDE.md](USER_GUIDE.md)** - User manual
+
+---
+
+**Need help?** Check the browser console (F12) for frontend errors and the terminal for backend logs.

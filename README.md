@@ -1,45 +1,40 @@
-# RAG Chat v2 — User Guide
+# RAG Chat v2
 
-This guide explains how to set up the app, what the UI does, and how to configure providers and RAG settings. It’s written for third‑party users who want to run and use the app locally.
+A modern, full-stack RAG (Retrieval-Augmented Generation) chat application with real-time streaming, file management, and configurable AI providers.
 
 ---
 
 ## 1) Overview
-- Full‑stack RAG chat application
-- Frontend: Next.js 16 (App Router), TailwindCSS, shadcn/ui
-- Backend: FastAPI, SQLite, Chroma vector store
-- Model providers: Ollama (local) and optionally OpenAI (cloud)
+**RAG Chat v2** is a modern chat application that combines document retrieval with AI-powered responses. Upload your documents, ask questions, and get accurate answers with cited sources.
 
-Key code locations:
-- Frontend app entry: [app/page.tsx](app/page.tsx)
-- Config screen (providers + RAG): [app/config/page.tsx](app/config/page.tsx)
-- Backend app: [backend/main.py](backend/main.py)
-- Backend settings: [backend/config.py](backend/config.py)
-- Runtime config storage: [backend/storage/runtime_config.json](backend/storage/runtime_config.json)
+### Tech Stack
+- **Frontend**: Next.js 16 (App Router), React 19, TailwindCSS 4, shadcn/ui
+- **Backend**: FastAPI (Python 3.11+), SQLite, ChromaDB
+- **AI Providers**: Ollama (local LLMs), Gemma models
+- **Document Processing**: Docling, pdfminer.six, python-docx
 
-Additional documentation:
-- [GETTING_STARTED.md](GETTING_STARTED.md)
-- [DOCUMENTATION.md](DOCUMENTATION.md)
-- [API_INTEGRATION.md](API_INTEGRATION.md)
-- [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)
-- [README.md](README.md)
+### Key Features
+- 📄 **Document Upload**: PDF, DOCX, TXT with Docling conversion
+- 💬 **Real-time Chat**: Streaming responses with SSE
+- 🔍 **Context Retrieval**: View source chunks with citations
+- ⚙️ **Configurable**: Multiple RAG strategies, adjustable parameters
+- 🎨 **Modern UI**: Dark/light themes, responsive design
+- 🔌 **API-First**: RESTful backend with comprehensive endpoints
 
 ---
 
 ## 2) Prerequisites
-- Node.js 18+ and npm
-- Python 3.11+ (virtual environment recommended)
-- Windows, macOS, or Linux
-- Optional for local LLMs: Ollama with compatible models installed
-  - Default expects Ollama at http://localhost:11434
-- Optional for cloud LLMs: OpenAI account and `OPENAI_API_KEY`
+- **Node.js** 18+ and npm
+- **Python** 3.11+
+- **Ollama** installed and running (for local AI models)
+  - Install from: https://ollama.ai
+  - Pull required models: `ollama pull gemma3:4b` and `ollama pull embeddinggemma:latest`
 
 ---
 
 ## 3) Quick Start (Local Development)
-Run backend and frontend in separate terminals.
 
-Terminal A — Backend (FastAPI):
+### Backend Setup
 ```powershell
 cd backend
 python -m venv .venv
@@ -47,14 +42,14 @@ python -m venv .venv
 pip install -r requirements.txt
 uvicorn backend.main:app --reload
 ```
-Backend starts on `http://localhost:8000`.
+Backend will start on **http://localhost:8000**
 
-Terminal B — Frontend (Next.js):
+### Frontend Setup
 ```powershell
 npm install
 npm run dev
 ```
-Frontend starts on `http://localhost:3000`.
+Frontend will start on **http://localhost:3000**
 
 Open the app at http://localhost:3000.
 
@@ -62,140 +57,195 @@ Open the app at http://localhost:3000.
 
 ## 4) Configuration
 
-### 4.1 Providers and Models (UI)
-- Visit `/config` (e.g., http://localhost:3000/config)
-- Choose the LLM provider and model (Ollama or OpenAI)
-- Choose the Embedding provider and model (can differ from chat)
-- Click “Save selection” to apply
+### 4.1 Provider Configuration
+Visit the **Config page** at `/config`:
+- **Chat Model**: Select the LLM for generating responses
+- **Embedding Model**: Select the model for document embeddings
+- **Provider**: Currently supports Ollama (OpenAI coming soon)
 
-The app only lists providers/models detected at runtime:
-- Ollama: requires the `ollama` Python package and a running Ollama daemon with models pulled
-- OpenAI: requires the OpenAI SDKs and a valid `OPENAI_API_KEY`
+Configuration is saved to `backend/storage/runtime_config.json`
 
-Configuration is persisted to [backend/storage/runtime_config.json](backend/storage/runtime_config.json).
+### 4.2 RAG Configuration
+On the Config page, adjust RAG parameters:
+- **Retrieval Strategy**: similarity, similarity_threshold, MMR
+- **Top K**: Number of chunks to retrieve (1-20)
+- **Score Threshold**: Minimum relevance score (0.0-1.0)
+- **MMR Lambda**: Diversity vs relevance balance (0.0-1.0)
 
-### 4.2 RAG Settings (UI)
-- On `/config`, switch to the “RAG Config” tab
-- Adjust retrieval strategy (similarity, threshold, MMR), `top_k`, thresholds, and vector backend
-- Settings are saved and applied immediately to new queries
+### 4.3 Environment Variables
+Create a `.env` file in the `backend/` directory:
+```bash
+RAG_allowed_origins=http://localhost:3000,http://127.0.0.1:3000
+RAG_ollama_base_url=http://localhost:11434
+RAG_embedding_model=embeddinggemma:latest
+RAG_chat_model=gemma3:4b
+RAG_top_k=12
+RAG_max_file_mb=50
+RAG_chunk_size=1024
+RAG_chunk_overlap=400
+```
 
-### 4.3 Environment Variables (Backend)
-The backend reads `.env` with `RAG_` prefix (see [backend/config.py](backend/config.py)):
-- `RAG_allowed_origins`: comma‑separated list for CORS (defaults include `http://localhost:3000`)
-- `RAG_ollama_base_url`: override Ollama host (default `http://localhost:11434`)
-- `RAG_embedding_model`, `RAG_chat_model`, `RAG_top_k`, etc.
+All settings use the `RAG_` prefix (see [backend/config.py](backend/config.py))
 
-Place the `.env` file at the repository root or inside `backend/`.
-
-### 4.4 Frontend API Base URL
-- Defaults to `http://localhost:8000` during dev
-- Can be overridden via `NEXT_PUBLIC_API_BASE`
-
-Example (PowerShell):
-```powershell
-$env:NEXT_PUBLIC_API_BASE = "http://localhost:8000"
-npm run dev
+### 4.4 Frontend Environment
+Optional frontend configuration:
+```bash
+NEXT_PUBLIC_API_BASE=http://localhost:8000
 ```
 
 ---
 
-## 5) UI Walkthrough
+## 5) Usage
 
-### 5.1 Main Chat
-- Type a question in the input and press Enter (or Ctrl+Enter)
-- Answers stream in real‑time
-- Status badges show message count, file count, and streaming state
-- Clear chat via the header button
+### Uploading Documents
+1. Click the **sidebar toggle** in the header
+2. **Drag and drop** files or click to browse
+3. Supported formats: PDF, DOCX, TXT
+4. Files are automatically processed with Docling when available
 
-Keyboard shortcuts:
-- Ctrl+Enter: send query
-- Escape: close modals
-- Tab / Shift+Tab: navigate focus
+### Chatting
+1. **Select files** from the sidebar (optional - use for context)
+2. **Type your question** in the input area
+3. Press **Enter** or **Ctrl+Enter** to send
+4. Watch the **real-time streaming** response
+5. View **source chunks** in the context panel
 
-### 5.2 Knowledge Base Sidebar
-- Toggle via the header button (desktop shows a collapsible panel; mobile slides over)
-- Upload files by drag‑and‑drop or click‑to‑select
-- See files with metadata: name, size, upload date, type/icon
-- View file chunks; expand/collapse to inspect retrieved context
-- Delete files with confirmation modal
+### Viewing Context
+- Expand **chunk viewers** to see retrieved content
+- Click **file names** in citations to view details
+- See **page numbers** and **section headings** when available
 
-### 5.3 Suggested Questions & Chunks
-- The chat displays retrieved context chunks alongside answers
-- For each file, you can view chunks via the sidebar controls
-
-### 5.4 Theme & Layout
-- Light/dark mode via the theme toggle
-- Fully responsive: desktop two‑pane layout, mobile stacked UI
+### Managing Files
+- **View chunks**: Click the chunks icon on any file
+- **Suggested questions**: Click the questions icon
+- **Delete files**: Click delete and confirm
 
 ---
 
-## 6) File Types, Limits, and Storage
-- Typical supported inputs: PDF, DOCX, TXT (see ingestion pipeline)
-- Default size limit is small for demos (configurable in [backend/config.py](backend/config.py))
-- Files are stored under `backend/storage/files`
-- Vector DB (Chroma) stores under `backend/storage/chroma`
-- SQLite DB at `backend/storage/rag.db` (created automatically)
+## 6) Project Structure
+
+```
+rag-chat-v2/
+├── app/                    # Next.js frontend
+│   ├── components/        # React components
+│   ├── hooks/             # Custom React hooks
+│   ├── config/            # Config page
+│   ├── page.tsx           # Main chat interface
+│   └── layout.tsx         # Root layout
+├── backend/               # FastAPI backend
+│   ├── routers/          # API route handlers
+│   ├── services/         # Business logic
+│   ├── models.py         # Database models
+│   ├── config.py         # Configuration
+│   └── main.py           # FastAPI app
+├── components/           # shadcn/ui components
+└── public/               # Static assets
+```
 
 ---
 
-## 7) Troubleshooting
-- Backend won’t start
-  - Ensure virtual env is active and `pip install -r backend/requirements.txt` completed
-  - If port 8000 is busy, change the port: `uvicorn backend.main:app --reload --port 8010`
-- CORS / Network errors
-  - Keep frontend on 3000 and backend on 8000, or update `RAG_allowed_origins`
-  - Set `NEXT_PUBLIC_API_BASE` so the frontend calls the correct backend URL
-- No providers/models listed on `/config`
-  - Ollama: install Ollama, run the daemon, and `ollama pull <model>`
-  - OpenAI: set `OPENAI_API_KEY` and install OpenAI SDKs
-- Streaming hangs
-  - Check backend logs; `/query` uses SSE and expects a live connection
-- Styling looks off
-  - Confirm Tailwind is configured; restart `npm run dev` after dependency changes
+## 7) API Endpoints
+
+Key endpoints (see [API_INTEGRATION.md](API_INTEGRATION.md) for details):
+- `POST /ingest` - Upload and process a file
+- `GET /files` - List all uploaded files
+- `GET /file/{id}/chunks` - Get file chunks
+- `GET /file/{id}/questions` - Get suggested questions
+- `DELETE /file/{id}` - Delete a file
+- `POST /query` - Ask a question (streaming SSE)
+- `GET /providers/models` - List available models
+- `POST /providers/selection` - Save provider selection
 
 ---
 
-## 8) Production Notes
-- Frontend
-  ```bash
-  npm run build
-  npm run start
-  ```
-- Backend
-  ```bash
-  uvicorn backend.main:app --host 0.0.0.0 --port 8000 --workers 2
-  ```
-- Set proper CORS and environment variables for your deployment host(s)
-- Persist `backend/storage/` volumes if you need to keep files, vectors, and the SQLite DB
+## 8) Troubleshooting
+
+### Backend Issues
+- **Port 8000 busy**: Use `uvicorn backend.main:app --reload --port 8010`
+- **No models available**: Ensure Ollama is running and models are pulled
+- **Import errors**: Activate venv and reinstall: `pip install -r requirements.txt`
+
+### Frontend Issues
+- **CORS errors**: Check `RAG_allowed_origins` in backend config
+- **API not found**: Verify `NEXT_PUBLIC_API_BASE` points to backend
+- **Styling broken**: Clear `.next` folder and restart: `rm -rf .next && npm run dev`
+
+### Ollama Issues
+- **Connection refused**: Start Ollama: `ollama serve`
+- **Model not found**: Pull models: `ollama pull gemma3:4b`
+- **Slow responses**: Consider using smaller models or adjust parameters
 
 ---
 
-## 9) API Overview (Quick)
-Common endpoints (see [API_INTEGRATION.md](API_INTEGRATION.md) for details):
-- `POST /ingest` — upload and index a file
-- `GET /files` — list files
-- `GET /file/{id}/chunks` — file chunks
-- `DELETE /file/{id}` — delete file
-- `POST /query` — ask a question (SSE streaming)
-- Provider/model discovery & selection under `/providers/*`
+## 9) Development
+
+### Adding Components
+```bash
+npx shadcn@latest add [component-name]
+```
+
+### Database Migrations
+```bash
+cd backend
+alembic revision --autogenerate -m "description"
+alembic upgrade head
+```
+
+### Running Tests
+```bash
+# Backend tests
+cd backend
+pytest
+
+# Frontend (not yet implemented)
+npm test
+```
 
 ---
 
-## 10) FAQ
-- Can I use OpenAI instead of Ollama?
-  - Not at the moment, it is WIP at the moment.
-- Where does the app store data?
-  - Under `backend/storage/` (files, vectors, SQLite DB, runtime selection).
-- Can I change chunking or retrieval settings?
-  - Yes on `/config` → “RAG Config”.
-- How do I change the backend port?
-  - `uvicorn backend.main:app --port 8010` and set `NEXT_PUBLIC_API_BASE` accordingly.
+## 10) Production Deployment
+
+### Frontend
+```bash
+npm run build
+npm run start
+```
+
+### Backend
+```bash
+uvicorn backend.main:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
+**Important**: 
+- Set appropriate CORS origins
+- Persist the `backend/storage/` directory
+- Configure environment variables
+- Use a production-grade database (PostgreSQL recommended)
 
 ---
 
-## 11) Support & Further Reading
-- Frontend code and components: [app/components/index.ts](app/components/index.ts)
-- Backend routers: [backend/routers/query.py](backend/routers/query.py), [backend/routers/files.py](backend/routers/files.py)
-- Deep dives: [DOCUMENTATION.md](DOCUMENTATION.md), [GETTING_STARTED.md](GETTING_STARTED.md)
+## 11) Documentation
 
-If you hit issues, check browser console, backend terminal logs, and the docs above.
+- **[GETTING_STARTED.md](GETTING_STARTED.md)** - Detailed setup guide
+- **[API_INTEGRATION.md](API_INTEGRATION.md)** - API documentation
+- **[USER_GUIDE.md](USER_GUIDE.md)** - User-facing documentation
+
+---
+
+## 12) License
+
+This project is available under the MIT License.
+
+---
+
+## 13) Contributing
+
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+---
+
+*Built with ❤️ using Next.js, FastAPI, and Ollama*

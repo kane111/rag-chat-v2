@@ -7,7 +7,6 @@ import { ChatHeader } from "./components/ChatHeader";
 import { ChatMessages } from "./components/ChatMessages";
 import { ChatInput } from "./components/ChatInput";
 import { SidebarContent } from "./components/SidebarContent";
-import { CollapsedSidebar } from "./components/CollapsedSidebar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useFileManagement } from "./hooks/useFileManagement";
@@ -16,8 +15,8 @@ import { useChatQuery } from "./hooks/useChatQuery";
 import type { ProviderSelection, RagSelection } from "@/types";
 
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [providerSelection, setProviderSelection] = useState<ProviderSelection | null>(null);
   const [ragSelection, setRagSelection] = useState<RagSelection | null>(null);
 
@@ -36,6 +35,11 @@ export default function Home() {
   const fileManagement = useFileManagement(apiBase);
   const fileContent = useFileContent(apiBase);
   const chat = useChatQuery(apiBase);
+  const selectedFileIds = useMemo(() => Array.from(fileManagement.selectedFileIds), [fileManagement.selectedFileIds]);
+  const selectedFilesForInput = useMemo(
+    () => fileManagement.files.filter(f => fileManagement.selectedFileIds.has(f.id)).map(f => ({ id: f.id, filename: f.filename })),
+    [fileManagement.files, fileManagement.selectedFileIds]
+  );
 
   useEffect(() => {
     fileManagement.refreshFiles();
@@ -49,7 +53,6 @@ export default function Home() {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
     const handleMediaChange = (event: MediaQueryListEvent | MediaQueryList) => {
       setIsDesktop(event.matches);
-      setSidebarOpen(event.matches);
     };
 
     handleMediaChange(mediaQuery);
@@ -79,7 +82,12 @@ export default function Home() {
     }
   }
 
-  const desktopColumns = sidebarOpen && isDesktop ? "minmax(0, 1fr) 360px" : "1fr";
+  const desktopColumns = isDesktop ? "minmax(0, 1fr) 360px" : "1fr";
+
+  const clearChat = () => {
+    chat.setMessages([]);
+    chat.setQuery("");
+  };
 
   return (
     <div className="flex-1 bg-background text-foreground flex flex-col pb-24">
@@ -116,9 +124,6 @@ export default function Home() {
                       <Badge variant="outline" className="text-[10px]">
                         {chat.messages.length} message{chat.messages.length !== 1 ? "s" : ""}
                       </Badge>
-                      <Badge variant="outline" className="text-[10px]">
-                        KB {sidebarOpen ? "open" : "hidden"}
-                      </Badge>
                       {chat.streaming && (
                         <Badge variant="outline" className="text-[10px] flex items-center gap-1">
                           <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
@@ -132,9 +137,8 @@ export default function Home() {
                         streaming={chat.streaming}
                         messagesCount={chat.messages.length}
                         filesCount={fileManagement.files.length}
-                        sidebarOpen={sidebarOpen}
-                        onClearChat={() => chat.setMessages([])}
-                        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                        onClearChat={clearChat}
+                        onToggleSidebar={() => setMobileDrawerOpen(!mobileDrawerOpen)}
                       />
                     </div>
 
@@ -152,20 +156,26 @@ export default function Home() {
                         query={chat.query}
                         streaming={chat.streaming}
                         filesCount={fileManagement.files.length}
+                        selectedCount={selectedFileIds.length}
+                        selectedFiles={selectedFilesForInput}
+                        canClear={chat.messages.length > 0}
                         onQueryChange={chat.setQuery}
-                        onSend={chat.runQuery}
+                        onSend={() => chat.runQuery(selectedFileIds)}
+                        onClearChat={clearChat}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && e.ctrlKey) {
-                            chat.runQuery();
+                            chat.runQuery(selectedFileIds);
                           }
                         }}
+                        onResetSelection={fileManagement.clearSelection}
+                        onRemoveFromSelection={fileManagement.toggleFileSelection}
                       />
                     </div>
                   </Card>
                 </div>
 
                 {/* Knowledge base (desktop) */}
-                {isDesktop && sidebarOpen && (
+                {isDesktop && (
                   <div className="hidden lg:flex">
                     <SidebarContent
                       files={fileManagement.files}
@@ -175,19 +185,12 @@ export default function Home() {
                       showChunksFor={fileContent.showChunksFor}
                       onUpload={fileManagement.handleUpload}
                       onRefresh={fileManagement.handleRefreshFiles}
-                      onMinimize={() => setSidebarOpen(false)}
                       onDelete={fileManagement.openDeleteModal}
                       onShowChunks={fileContent.fetchFileChunks}
-                    />
-                  </div>
-                )}
-
-                {isDesktop && !sidebarOpen && (
-                  <div className="hidden lg:flex items-start justify-end">
-                    <CollapsedSidebar
-                      filesCount={fileManagement.files.length}
-                      onExpand={() => setSidebarOpen(true)}
-                      onRefresh={fileManagement.handleRefreshFiles}
+                      selectedFileIds={fileManagement.selectedFileIds}
+                      onToggleSelect={fileManagement.toggleFileSelection}
+                      onSelectAll={fileManagement.selectAllFiles}
+                      onClearSelection={fileManagement.clearSelection}
                     />
                   </div>
                 )}
@@ -200,12 +203,12 @@ export default function Home() {
       {/* Mobile knowledge base drawer */}
       {!isDesktop && (
         <div
-          className={`fixed inset-0 z-40 transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "translate-x-full"}`}
-          aria-hidden={!sidebarOpen}
+          className={`fixed inset-0 z-40 transition-transform duration-300 ${mobileDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
+          aria-hidden={!mobileDrawerOpen}
         >
           <div
             className="absolute inset-0 bg-background/70 backdrop-blur-sm"
-            onClick={() => setSidebarOpen(false)}
+            onClick={() => setMobileDrawerOpen(false)}
           />
           <div className="absolute right-0 top-0 h-full w-full max-w-md sm:w-[88vw] bg-background border-l shadow-2xl p-3 flex flex-col overflow-hidden">
             <SidebarContent
@@ -216,9 +219,13 @@ export default function Home() {
               showChunksFor={fileContent.showChunksFor}
               onUpload={fileManagement.handleUpload}
               onRefresh={fileManagement.handleRefreshFiles}
-              onMinimize={() => setSidebarOpen(false)}
+              onClose={() => setMobileDrawerOpen(false)}
               onDelete={fileManagement.openDeleteModal}
               onShowChunks={fileContent.fetchFileChunks}
+              selectedFileIds={fileManagement.selectedFileIds}
+              onToggleSelect={fileManagement.toggleFileSelection}
+              onSelectAll={fileManagement.selectAllFiles}
+              onClearSelection={fileManagement.clearSelection}
             />
           </div>
         </div>

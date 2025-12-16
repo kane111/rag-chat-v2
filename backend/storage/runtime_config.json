@@ -9,7 +9,7 @@
     "score_threshold": null,
     "fetch_k": 20,
     "lambda_mult": 0.5,
-    "chunking_method": "recursive_character",
+    "chunking_method": "markdown_header",
     "vector_backend": "chroma"
   }
 }

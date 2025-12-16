@@ -21,9 +21,9 @@ class RetrievedChunk:
     score: float
 
 
-def retrieve_chunks(session: Session, query: str, top_k: int) -> List[RetrievedChunk]:
+def retrieve_chunks(session: Session, query: str, top_k: int, file_ids: List[int] | None = None) -> List[RetrievedChunk]:
     """LangChain-powered retrieval from vector store with stored metadata."""
-    results = retrieve(query, k=top_k)
+    results = retrieve(query, k=top_k, file_ids=file_ids)
     retrieved: List[RetrievedChunk] = []
 
     for doc, score in results:

@@ -38,7 +38,7 @@ def build_prompt(question: str, contexts: Iterable[str]) -> str:
         "Guidelines:\n"
         "- Be concise and factual.\n"
         "- Do not invent details.\n"
-        "- Write a coherent, flowing response without interrupting citations.\n"
+        "- Write a coherent, flowing response.\n"
         "- If multiple sources support a point, list them together in brackets at the end.\n"
         "- If context conflicts, state the conflict briefly, then cite sources at the end.\n\n"
         f"Context:\n{context_text}\n\n"
@@ -57,7 +57,12 @@ def generate_answer(question: str, contexts: List[str], stream: bool = False):
         raw = result.content or ""
         return _cleanup_text(str(raw))
     except Exception as exc:  # pragma: no cover
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Generation failed: {exc}") from exc
+        detail = {
+            "code": "GENERATION_FAILED",
+            "message": "Generation failed while contacting the model.",
+            "hint": "Verify the model is reachable and retry.",
+        }
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=detail) from exc
 
 
 def _stream(prompt: str, chat: ChatOllama) -> Generator[str, None, None]:

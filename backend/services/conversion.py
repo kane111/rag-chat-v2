@@ -24,6 +24,7 @@ from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import (
     PdfPipelineOptions,
 )
+from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from hierarchical.postprocessor import ResultPostprocessor
 
@@ -77,12 +78,14 @@ def _convert_with_docling_to_markdown(path: Path) -> str:
         # Import inside function to avoid import-time errors if Docling isn't installed yet.
 
         pipeline_options = PdfPipelineOptions()
+        accelerator = AcceleratorOptions(device=AcceleratorDevice.CUDA, num_threads=6,)
+
         pipeline_options.do_ocr = True
         pipeline_options.do_table_structure = True
         pipeline_options.do_code_enrichment = True
         pipeline_options.do_formula_enrichment = True
         pipeline_options.do_picture_description = True
-
+        pipeline_options.accelerator_options = accelerator
 
         converter = DocumentConverter(
             format_options={

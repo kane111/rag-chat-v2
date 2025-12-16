@@ -183,7 +183,7 @@ Common endpoints (see [API_INTEGRATION.md](API_INTEGRATION.md) for details):
 
 ## 10) FAQ
 - Can I use OpenAI instead of Ollama?
-  - Not at the moment, it is WIP at the moment.
+  - Yes. Set `OPENAI_API_KEY`, then select OpenAI models on `/config`.
 - Where does the app store data?
   - Under `backend/storage/` (files, vectors, SQLite DB, runtime selection).
 - Can I change chunking or retrieval settings?

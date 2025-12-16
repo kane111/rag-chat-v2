@@ -16,8 +16,8 @@ export function TopMenuBar() {
         <Link href="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
           <Sparkles className="h-6 w-6 text-primary" />
           <div>
-            <h1 className="text-lg font-semibold">RAG Chat</h1>
-            <p className="text-xs text-muted-foreground hidden sm:block">Hybrid RAG chat over your documents</p>
+            <h1 className="text-lg font-semibold">RAG Workbench</h1>
+            <p className="text-xs text-muted-foreground hidden sm:block">Configurable RAG chat Interface</p>
           </div>
         </Link>
         <div className="flex items-center gap-3">

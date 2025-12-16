@@ -20,9 +20,16 @@ router = APIRouter()
 @router.post("/ingest", response_model=IngestResponse)
 def ingest(
     file: UploadFile = File(...),
-    chunking_method: str = Form(default="recursive_character"),
+    chunking_method: str = Form(default=""),
     db: Session = Depends(get_db)
 ):
+    # Use runtime RAG config if chunking_method not provided
+    from ..services.runtime_config import get_runtime_rag
+    
+    if not chunking_method:
+        rag_config = get_runtime_rag()
+        chunking_method = rag_config.get("chunking_method") or "recursive_character"
+    
     logger.info("ingest: filename=%s, chunking_method=%s", file.filename, chunking_method)
     # Validate and convert chunking_method string to enum
     try:
@@ -44,9 +51,16 @@ def list_files(db: Session = Depends(get_db)):
 def update_file(
     file_id: int,
     file: UploadFile = File(...),
-    chunking_method: str = Form(default="recursive_character"),
+    chunking_method: str = Form(default=""),
     db: Session = Depends(get_db)
 ):
+    # Use runtime RAG config if chunking_method not provided
+    from ..services.runtime_config import get_runtime_rag
+    
+    if not chunking_method:
+        rag_config = get_runtime_rag()
+        chunking_method = rag_config.get("chunking_method") or "recursive_character"
+    
     logger.info("update file=%s, chunking_method=%s", file_id, chunking_method)
     # Validate and convert chunking_method string to enum
     try:

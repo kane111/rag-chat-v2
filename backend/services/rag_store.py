@@ -61,7 +61,7 @@ def similarity_search_with_score(query: str, k: int):
     return vectorstore.similarity_search_with_score(query, k=k)
 
 
-def retrieve(query: str, k: int):
+def retrieve(query: str, k: int, file_ids: List[int] | None = None):
     """Retrieve documents using configured strategy.
 
     - similarity: scored search
@@ -71,19 +71,26 @@ def retrieve(query: str, k: int):
     vs = get_vectorstore()
     rag = get_runtime_rag()
     stype = rag["retrieval_strategy"]
+    filter_clause = {"file_id": {"$in": file_ids}} if file_ids else None
     if stype == "similarity":
-        return vs.similarity_search_with_score(query, k=k)
+        return vs.similarity_search_with_score(query, k=k, filter=filter_clause)
     if stype == "similarity_score_threshold":
         # Use similarity search as fallback for threshold strategy
         # The relevance_scores method can produce invalid scores outside 0-1 range
         # depending on the embedding model, so we filter manually
         threshold = rag.get("score_threshold") or 0.0
-        results = vs.similarity_search_with_score(query, k=k * 2)  # Get more to filter
+        results = vs.similarity_search_with_score(query, k=k * 2, filter=filter_clause)  # Get more to filter
         filtered = [(doc, score) for doc, score in results if score >= threshold]
         return filtered[:k]
     if stype == "mmr":
-        docs = vs.max_marginal_relevance_search(query, k=k, fetch_k=rag.get("fetch_k") or 20, lambda_mult=rag.get("lambda_mult") or 0.5)
+        docs = vs.max_marginal_relevance_search(
+            query,
+            k=k,
+            fetch_k=rag.get("fetch_k") or 20,
+            lambda_mult=rag.get("lambda_mult") or 0.5,
+            filter=filter_clause,
+        )
         # Align interface: return (doc, score) pairs with score None
         return [(d, None) for d in docs]
     # Fallback to similarity
-    return vs.similarity_search_with_score(query, k=k)
+    return vs.similarity_search_with_score(query, k=k, filter=filter_clause)

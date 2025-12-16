@@ -2,6 +2,22 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useToast } from "@/app/components/Toast";
 import type { Message, ContextChunk } from "@/types";
 
+type ApiError = {
+  code?: string;
+  message?: string;
+  hint?: string;
+  correlation_id?: string;
+};
+
+const parseErrorResponse = async (res: Response): Promise<ApiError> => {
+  try {
+    return (await res.json()) as ApiError;
+  } catch (error) {
+    console.error("Failed to parse error response", error);
+    return {};
+  }
+};
+
 export function useChatQuery(apiBase: string) {
   const toast = useToast();
   const [query, setQuery] = useState("");
@@ -21,17 +37,31 @@ export function useChatQuery(apiBase: string) {
   }, []);
 
   const streamQuery = useCallback(
-    async (queryText: string) => {
+    async (queryText: string, fileIds?: number[]) => {
       setStreaming(true);
       let streamedAnswer = "";
       let streamedContexts: ContextChunk[] = [];
+      let completed = false;
 
       try {
+        const payload: Record<string, unknown> = { query: queryText, stream: true };
+        if (fileIds && fileIds.length > 0) {
+          payload.file_ids = fileIds;
+        }
+
         const res = await fetch(`${apiBase}/query`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
-          body: JSON.stringify({ query: queryText, stream: true }),
+          body: JSON.stringify(payload),
         });
+
+        if (!res.ok) {
+          const err = await parseErrorResponse(res);
+          const message = err.message || res.statusText || "Request failed";
+          const hint = err.hint ? ` (${err.hint})` : "";
+          toast.error(`${message}${hint}`);
+          return;
+        }
 
         if (!res.body) {
           toast.error("Stream unavailable");
@@ -69,6 +99,27 @@ export function useChatQuery(apiBase: string) {
               } catch (error) {
                 console.error("Context parse error", error);
               }
+            } else if (eventType === "error" && data) {
+              try {
+                const err = JSON.parse(data) as ApiError;
+                const message = err.message || "An error occurred";
+                const hint = err.hint ? ` (${err.hint})` : "";
+                const correlation = err.correlation_id ? ` [id: ${err.correlation_id}]` : "";
+                toast.error(`${message}${hint}${correlation}`);
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    id: `assistant-error-${Date.now()}`,
+                    role: "assistant",
+                    content: `Error: ${message}${hint}${correlation}`,
+                    timestamp: new Date(),
+                  },
+                ]);
+              } catch (error) {
+                console.error("Error event parse failure", error);
+                toast.error("Stream error occurred");
+              }
+              return;
             } else if (eventType !== "end" && data) {
               try {
                 const chunk = JSON.parse(data);
@@ -82,19 +133,22 @@ export function useChatQuery(apiBase: string) {
           }
         }
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `assistant-${Date.now()}`,
-            role: "assistant",
-            content: streamedAnswer,
-            contexts: streamedContexts,
-            timestamp: new Date(),
-          },
-        ]);
+        completed = true;
+        if (completed) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `assistant-${Date.now()}`,
+              role: "assistant",
+              content: streamedAnswer,
+              contexts: streamedContexts,
+              timestamp: new Date(),
+            },
+          ]);
 
-        clearStreamingStates();
-        toast.success("Response received");
+          clearStreamingStates();
+          toast.success("Response received");
+        }
       } catch (error) {
         toast.error("Stream error occurred");
         console.error(error);
@@ -105,7 +159,7 @@ export function useChatQuery(apiBase: string) {
     [apiBase, toast, clearStreamingStates]
   );
 
-  const runQuery = useCallback(async () => {
+  const runQuery = useCallback(async (fileIds?: number[]) => {
     if (!query.trim()) {
       toast.warning("Please enter a question");
       return;
@@ -122,7 +176,7 @@ export function useChatQuery(apiBase: string) {
     const currentQuery = query;
     setQuery("");
     clearStreamingStates();
-    await streamQuery(currentQuery);
+    await streamQuery(currentQuery, fileIds);
   }, [query, toast, clearStreamingStates, streamQuery]);
 
   const handleQuestionClick = useCallback((question: string) => {

@@ -5,6 +5,7 @@ import type { FileMeta } from "@/types";
 export function useFileManagement(apiBase: string) {
   const toast = useToast();
   const [files, setFiles] = useState<FileMeta[]>([]);
+  const [selectedFileIds, setSelectedFileIds] = useState<Set<number>>(new Set());
   const [uploading, setUploading] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteFileId, setDeleteFileId] = useState<number | null>(null);
@@ -13,7 +14,17 @@ export function useFileManagement(apiBase: string) {
     try {
       const res = await fetch(`${apiBase}/files`);
       if (res.ok) {
-        setFiles(await res.json());
+        const incoming = (await res.json()) as FileMeta[];
+        setFiles(incoming);
+        // Keep only selections that still exist
+        setSelectedFileIds((prev) => {
+          const allowed = new Set(incoming.map((f) => f.id));
+          const next = new Set<number>();
+          prev.forEach((id) => {
+            if (allowed.has(id)) next.add(id);
+          });
+          return next;
+        });
       }
     } catch (error) {
       console.error(error);
@@ -82,8 +93,29 @@ export function useFileManagement(apiBase: string) {
     setDeleteFileId(null);
   }, []);
 
+  const toggleFileSelection = useCallback((id: number) => {
+    setSelectedFileIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const selectAllFiles = useCallback(() => {
+    setSelectedFileIds(new Set(files.map((file) => file.id)));
+  }, [files]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedFileIds(new Set());
+  }, []);
+
   return {
     files,
+    selectedFileIds,
     uploading,
     deleteModalOpen,
     deleteFileId,
@@ -93,5 +125,8 @@ export function useFileManagement(apiBase: string) {
     handleRefreshFiles,
     openDeleteModal,
     closeDeleteModal,
+    toggleFileSelection,
+    selectAllFiles,
+    clearSelection,
   };
 }

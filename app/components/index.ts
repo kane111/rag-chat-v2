@@ -34,5 +34,4 @@ export { ChatInput } from "./ChatInput";
 
 // Sidebar Components
 export { SidebarContent } from "./SidebarContent";
-export { CollapsedSidebar } from "./CollapsedSidebar";
 export { FileChunksViewer } from "./FileChunksViewer";

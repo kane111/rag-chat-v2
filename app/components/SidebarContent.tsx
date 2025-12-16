@@ -18,10 +18,13 @@ interface SidebarContentProps {
   showChunksFor: number | null;
   onUpload: (file: File) => Promise<void>;
   onRefresh: () => Promise<void>;
-  onMinimize: () => void;
+  onClose?: () => void;
   onDelete: (id: number) => void;
   onShowChunks: (id: number) => Promise<void>;
-  
+  selectedFileIds: Set<number>;
+  onToggleSelect: (id: number) => void;
+  onSelectAll: () => void;
+  onClearSelection: () => void;
 }
 
 export function SidebarContent({
@@ -32,10 +35,13 @@ export function SidebarContent({
   showChunksFor,
   onUpload,
   onRefresh,
-  onMinimize,
+  onClose,
   onDelete,
   onShowChunks,
-  
+  selectedFileIds,
+  onToggleSelect,
+  onSelectAll,
+  onClearSelection,
 }: SidebarContentProps) {
   const [activeTab, setActiveTab] = useState("files");
   const [previewFor, setPreviewFor] = useState<number | null>(null);
@@ -44,6 +50,9 @@ export function SidebarContent({
     () => files.find((file) => file.id === showChunksFor) || null,
     [files, showChunksFor]
   );
+
+  const selectedCount = selectedFileIds.size;
+  const selectedFilesList = useMemo(() => files.filter(f => selectedFileIds.has(f.id)).map(f => ({ id: f.id, filename: f.filename })), [files, selectedFileIds]);
 
   const selectedPreviewFile = useMemo(
     () => files.find((file) => file.id === previewFor) || null,
@@ -148,21 +157,71 @@ export function SidebarContent({
             >
               <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onMinimize}
-              aria-label="Minimize sidebar"
-              className="h-8 w-8 sm:h-9 sm:w-9"
-            >
-              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
-            </Button>
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                aria-label="Close sidebar"
+                className="h-8 w-8 sm:h-9 sm:w-9 lg:hidden"
+              >
+                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4 flex-1 overflow-hidden flex flex-col px-5 py-5 min-h-0">
         <FileUploadZone onUpload={onUpload} disabled={uploading} />
+
+        <div className="rounded-lg border bg-muted/50 px-3 py-2 flex items-start justify-between gap-3 text-[11px]">
+          <div className="space-y-1 min-w-0 flex-1">
+            <p className="uppercase text-[10px] font-semibold text-muted-foreground">Chat scope</p>
+            {selectedCount > 0 ? (
+              <div className="flex items-center gap-1 flex-wrap mt-1">
+                {selectedFilesList.map((f) => (
+                  <span key={f.id} className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 bg-muted text-foreground text-[11px] hover:bg-muted/70 transition">
+                    <span className="truncate max-w-48" title={f.filename}>{f.filename}</span>
+                    <button
+                      type="button"
+                      onClick={() => onToggleSelect(f.id)}
+                      aria-label={`Remove ${f.filename} from scope`}
+                      className="ml-1 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition px-1"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-foreground text-sm font-medium">{files.length > 0 ? "All files" : "No files available"}</p>
+            )}
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {selectedCount > 0 ? "Responses will use only the selected files." : "No selection means the chat will search all files."}
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-[11px]"
+              onClick={onSelectAll}
+              disabled={files.length === 0}
+            >
+              Select all
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-[11px]"
+              onClick={onClearSelection}
+              disabled={selectedCount === 0}
+            >
+              Clear
+            </Button>
+          </div>
+        </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           <TabsList className="gap-2 self-start">
@@ -208,7 +267,8 @@ export function SidebarContent({
                         showingChunks={showChunksFor === file.id}
                         showingPreview={previewFor === file.id}
                         loadingChunks={loadingChunks.has(file.id)}
-                        
+                        selected={selectedFileIds.has(file.id)}
+                        onToggleSelect={onToggleSelect}
                       />
                     ))}
                   </div>

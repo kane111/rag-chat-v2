@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     chat_model: str = "gemma3:4b"
     top_k: int = 12
 
-    max_file_mb: int = 1
+    max_file_mb: int = 50
     # Tighter chunks improve grounding and reduce off-topic context
     chunk_size: int = 1024
     chunk_overlap: int = 400

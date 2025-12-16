@@ -23,6 +23,8 @@ interface FileListItemProps {
   showingChunks: boolean;
   showingPreview: boolean;
   loadingChunks: boolean;
+  selected: boolean;
+  onToggleSelect: (id: number) => void;
 }
 
 export function FileListItem({
@@ -33,6 +35,8 @@ export function FileListItem({
   showingChunks,
   showingPreview,
   loadingChunks,
+  selected,
+  onToggleSelect,
 }: FileListItemProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -53,16 +57,28 @@ export function FileListItem({
             {file.filename}
           </p>
         </div>
-        <Button
-          onClick={() => onDelete(file.id)}
-          size="sm"
-          variant="ghost"
-          aria-label="Delete file"
-          title="Delete file"
-          className="text-destructive hover:bg-destructive/10 shrink-0 h-6 w-6 p-0"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            onClick={() => onToggleSelect(file.id)}
+            size="sm"
+            variant={selected ? "secondary" : "outline"}
+            aria-label={selected ? "Remove from chat" : "Add to chat"}
+            title={selected ? "Remove from chat" : "Add to chat"}
+            className={`h-7 px-2 text-[11px] ${selected ? "ring-1 ring-primary/50" : "hover:bg-primary/10"}`}
+          >
+            {selected ? "Added" : "Add to chat"}
+          </Button>
+          <Button
+            onClick={() => onDelete(file.id)}
+            size="sm"
+            variant="ghost"
+            aria-label="Delete file"
+            title="Delete file"
+            className="text-destructive hover:bg-destructive/10 shrink-0 h-6 w-6 p-0"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Metadata row */}
@@ -81,6 +97,14 @@ export function FileListItem({
           )}
           <span>•</span>
           <span>{formatDate(file.uploaded_at)}</span>
+          {selected && (
+            <>
+              <span>•</span>
+              <Badge variant="outline" className="text-[8px] sm:text-[10px] px-1.5 py-0">
+                Added to chat
+              </Badge>
+            </>
+          )}
         </div>
       </div>
 

@@ -22,8 +22,8 @@ def _context_texts(retrieved: Iterable[RetrievedChunk]) -> List[str]:
     return texts
 
 
-def run_query(session: Session, query_text: str, top_k: int):
-    retrieved = retrieve_chunks(session, query_text, top_k=top_k)
+def run_query(session: Session, query_text: str, top_k: int, file_ids: List[int] | None = None):
+    retrieved = retrieve_chunks(session, query_text, top_k=top_k, file_ids=file_ids)
 
     contexts = _context_texts(retrieved)
 

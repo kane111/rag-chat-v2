@@ -4,6 +4,7 @@ from functools import lru_cache
 from typing import List
 
 from langchain_ollama import OllamaEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.vectorstores import VectorStore
 from langchain_core.embeddings import Embeddings
@@ -13,34 +14,56 @@ from .runtime_config import get_runtime_models, get_runtime_rag
 
 
 @lru_cache(maxsize=4)
-def _embedding_client(model: str) -> Embeddings:
+def _ollama_embedding_client(model: str) -> Embeddings:
     return OllamaEmbeddings(base_url=settings.ollama_base_url, model=model)
 
 
 @lru_cache(maxsize=4)
-def _vectorstore(model: str) -> Chroma:
+def _openai_embedding_client(model: str) -> Embeddings:
+    if not settings.openai_api_key:
+        raise ValueError("OpenAI API key not configured (RAG_OPENAI_API_KEY)")
+    return OpenAIEmbeddings(api_key=settings.openai_api_key, model=model)
+
+
+def _get_embedding_client(provider: str, model: str) -> Embeddings:
+    """Get the appropriate embedding client based on the provider."""
+    if provider == "openai":
+        return _openai_embedding_client(model)
+    elif provider == "ollama":
+        return _ollama_embedding_client(model)
+    else:
+        raise ValueError(f"Unknown embedding provider: {provider}")
+
+
+@lru_cache(maxsize=4)
+def _vectorstore(provider: str, model: str) -> Chroma:
     return Chroma(
         collection_name=settings.chroma_collection,
-        embedding_function=_embedding_client(model),
+        embedding_function=_get_embedding_client(provider, model),
         persist_directory=str(settings.chroma_dir),
     )
 
 
 def get_embeddings() -> Embeddings:
     """Return a cached embedding model for reuse across requests."""
-    model = get_runtime_models()["embedding_model"]
-    return _embedding_client(model)
+    models = get_runtime_models()
+    provider = models["embedding_provider"]
+    model = models["embedding_model"]
+    return _get_embedding_client(provider, model)
 
 
 def get_vectorstore() -> Chroma:
     """Return a cached Chroma vector store backed by LangChain."""
-    model = get_runtime_models()["embedding_model"]
-    return _vectorstore(model)
+    models = get_runtime_models()
+    provider = models["embedding_provider"]
+    model = models["embedding_model"]
+    return _vectorstore(provider, model)
 
 
 def reset_vectorstore_cache() -> None:
     _vectorstore.cache_clear()
-    _embedding_client.cache_clear()
+    _ollama_embedding_client.cache_clear()
+    _openai_embedding_client.cache_clear()
 
 
 def add_documents(documents, ids: List[str]):

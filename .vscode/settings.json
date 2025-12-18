@@ -1,4 +1,7 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    "workbench.colorCustomizations": {
+        "minimap.background": "#00000000",
+        "scrollbar.shadow": "#00000000"
+    },
     "python-envs.pythonProjects": []
 }

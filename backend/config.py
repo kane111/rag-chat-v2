@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     ]
 
     ollama_base_url: str = "http://localhost:11434"
+    openai_api_key: str = ""  # Set via environment variable RAG_OPENAI_API_KEY
 
 
 def get_settings() -> Settings:

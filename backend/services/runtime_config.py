@@ -144,9 +144,11 @@ def set_runtime_models(
     # Refresh caches after releasing the lock to avoid circular imports during validation
     try:
         from .generation import reset_chat_client_cache
+        from .embedding import reset_embedding_cache
         from .rag_store import reset_vectorstore_cache
 
         reset_chat_client_cache()
+        reset_embedding_cache()
         reset_vectorstore_cache()
     except Exception:
         # Cache refresh best-effort; failures should not block persisted config

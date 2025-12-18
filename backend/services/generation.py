@@ -6,7 +6,9 @@ import logging
 
 from fastapi import HTTPException, status
 from langchain_core.messages import HumanMessage
+from langchain_core.language_models import BaseChatModel
 from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 
 from ..config import settings
 from .runtime_config import get_runtime_models
@@ -16,18 +18,35 @@ logger = logging.getLogger("generation")
 
 
 @lru_cache(maxsize=4)
-def _chat_client(model: str) -> ChatOllama:
+def _ollama_chat_client(model: str) -> ChatOllama:
     # Cache clients per-model to avoid recreating transports.
     return ChatOllama(base_url=settings.ollama_base_url, model=model)
 
 
-def _get_chat() -> ChatOllama:
+@lru_cache(maxsize=4)
+def _openai_chat_client(model: str) -> ChatOpenAI:
+    # Cache OpenAI clients per-model
+    if not settings.openai_api_key:
+        raise ValueError("OpenAI API key not configured (RAG_OPENAI_API_KEY)")
+    return ChatOpenAI(api_key=settings.openai_api_key, model=model)
+
+
+def _get_chat() -> BaseChatModel:
     models = get_runtime_models()
-    return _chat_client(models["chat_model"])
+    provider = models["chat_provider"]
+    model = models["chat_model"]
+
+    if provider == "openai":
+        return _openai_chat_client(model)
+    elif provider == "ollama":
+        return _ollama_chat_client(model)
+    else:
+        raise ValueError(f"Unknown chat provider: {provider}")
 
 
 def reset_chat_client_cache() -> None:
-    _chat_client.cache_clear()
+    _ollama_chat_client.cache_clear()
+    _openai_chat_client.cache_clear()
 
 
 def build_prompt(question: str, contexts: Iterable[str]) -> str:
@@ -65,7 +84,7 @@ def generate_answer(question: str, contexts: List[str], stream: bool = False):
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=detail) from exc
 
 
-def _stream(prompt: str, chat: ChatOllama) -> Generator[str, None, None]:
+def _stream(prompt: str, chat: BaseChatModel) -> Generator[str, None, None]:
     stream = chat.stream([HumanMessage(content=prompt)])
     for chunk in stream:
         piece = chunk.content

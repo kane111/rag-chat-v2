@@ -1,95 +1,168 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# ============================================================================
+# Node / NPM / Next.js
+# ============================================================================
+
 # dependencies
 /node_modules
 /.pnp
+.pnp
 .pnp.*
+
+# yarn
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+.yarn/install-state.gz
 
-# testing
-/coverage
-
-# next.js
+# Next.js
 /.next/
 /out/
+/build/
 
-# production
-/build
+# production build files
+.next
+dist
 
-# misc
-.DS_Store
-*.pem
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
 
-# debug
+# IDE cache
+.eslintcache
+
+# ============================================================================
+# Python / FastAPI / Virtual Environment
+# ============================================================================
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.env.local
+
+# Python byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# ============================================================================
+# Environment Variables
+# ============================================================================
+
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ============================================================================
+# Logging & Debug
+# ============================================================================
+
+# npm
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+lerna-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# vercel
-.vercel
+# ============================================================================
+# OS & Editor
+# ============================================================================
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
 
-# Byte-compiled / optimized files
-*.pyc
-__pycache__/
-backend/__pycache__/__init__.cpython-313.pyc
-backend/__pycache__/config.cpython-313.pyc
-backend/__pycache__/database.cpython-313.pyc
-backend/__pycache__/dependencies.cpython-313.pyc
-backend/__pycache__/main.cpython-313.pyc
-backend/__pycache__/models.cpython-313.pyc
-backend/__pycache__/schemas.cpython-313.pyc
-backend/routers/__pycache__/__init__.cpython-313.pyc
-backend/routers/__pycache__/files.cpython-313.pyc
-backend/routers/__pycache__/providers.cpython-313.pyc
-backend/routers/__pycache__/query.cpython-313.pyc
-backend/routers/__pycache__/system.cpython-313.pyc
-backend/services/__pycache__/__init__.cpython-313.pyc
-backend/services/__pycache__/conversion.cpython-313.pyc
-backend/services/__pycache__/files.cpython-313.pyc
-backend/services/__pycache__/generation.cpython-313.pyc
-backend/services/__pycache__/ingest.cpython-313.pyc
-backend/services/__pycache__/providers.cpython-313.pyc
-backend/services/__pycache__/query_service.cpython-313.pyc
-backend/services/__pycache__/rag_store.cpython-313.pyc
-backend/services/__pycache__/runtime_config.cpython-313.pyc
-backend/services/__pycache__/search.cpython-313.pyc
-backend/__pycache__/__init__.cpython-313.pyc
-backend/__pycache__/config.cpython-313.pyc
-backend/__pycache__/database.cpython-313.pyc
-backend/__pycache__/dependencies.cpython-313.pyc
-backend/__pycache__/main.cpython-313.pyc
-backend/__pycache__/models.cpython-313.pyc
-backend/__pycache__/schemas.cpython-313.pyc
-backend/routers/__pycache__/__init__.cpython-313.pyc
-backend/routers/__pycache__/files.cpython-313.pyc
-backend/routers/__pycache__/providers.cpython-313.pyc
-backend/routers/__pycache__/query.cpython-313.pyc
-backend/routers/__pycache__/system.cpython-313.pyc
-backend/__pycache__/__init__.cpython-313.pyc
-backend/__pycache__/config.cpython-313.pyc
-backend/__pycache__/database.cpython-313.pyc
-backend/__pycache__/dependencies.cpython-313.pyc
-backend/__pycache__/main.cpython-313.pyc
-backend/__pycache__/models.cpython-313.pyc
-backend/__pycache__/schemas.cpython-313.pyc
-backend/routers/__pycache__/__init__.cpython-313.pyc
-backend/routers/__pycache__/files.cpython-313.pyc
-backend/routers/__pycache__/providers.cpython-313.pyc
-backend/routers/__pycache__/query.cpython-313.pyc
-backend/routers/__pycache__/system.cpython-313.pyc
-backend/services/__pycache__/runtime_config.cpython-313.pyc
+# Windows
+Thumbs.db
+ehthumbs.db
+*.lnk
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.history/
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ============================================================================
+# Project-Specific
+# ============================================================================
+
+# Certificates & keys
+*.pem
+*.key
+*.cert
+
+# Backend storage
+backend/storage/
+backend/*.db
 backend/storage/rag.db
-backend/storage/chroma/chroma.sqlite3
-backend/storage/files/KANISHKA V dxb.pdf
+backend/storage/chroma/
+backend/storage/files/
+
+# Alembic
+alembic.ini
+
+# API Documentation
+docs/swagger.json
+
+# Vercel
+.vercel

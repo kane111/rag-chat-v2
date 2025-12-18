@@ -19,11 +19,13 @@ generation.py
 ├── langchain_ollama.ChatOllama
 ├── langchain_openai.ChatOpenAI
 ├── langchain_core.language_models.BaseChatModel
-└── langchain_core.messages.HumanMessage
+├── langchain_core.messages.HumanMessage
+└── langchain_text_splitters (for chunking)
 
 embedding.py
 ├── ollama.Client
 ├── langchain_openai.OpenAIEmbeddings
+├── langchain_ollama.OllamaEmbeddings
 └── runtime_config.get_runtime_models()
 
 rag_store.py
@@ -31,7 +33,14 @@ rag_store.py
 ├── langchain_openai.OpenAIEmbeddings
 ├── langchain_chroma.Chroma
 ├── langchain_core.embeddings.Embeddings
-└── langchain_core.vectorstores.VectorStore
+├── langchain_core.vectorstores.VectorStore
+└── rank_bm25.BM25Okapi (for hybrid search)
+
+conversion.py
+├── docling (primary converter)
+├── pdfminer.six (PDF extraction)
+├── python-docx (DOCX parsing)
+└── langchain_text_splitters (content chunking)
 ```
 
 ## Provider Selection Flow
@@ -442,6 +451,7 @@ Typical response times (with both providers available):
 
 ---
 
-**Last Updated**: 2024
-**Version**: 1.0
+**Last Updated**: December 2024
+**Version**: 2.0
 **Status**: Production Ready
+**Minimum Requirements**: Python 3.9+, Node.js 18+, Next.js 16.0.10+

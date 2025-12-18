@@ -100,15 +100,66 @@ def _list_openai_models() -> List[ModelInfo]:
         return []
 
     try:
-        client = OpenAI()
+        # Use API key from settings if configured
+        api_key = settings.openai_api_key or None
+        client = OpenAI(api_key=api_key) if api_key else OpenAI()
         response = client.models.list()
         models: List[ModelInfo] = []
+        
+        # Known context lengths for popular OpenAI models
+        CONTEXT_LENGTHS = {
+            "gpt-4": 8192,
+            "gpt-4-0613": 8192,
+            "gpt-4-32k": 32768,
+            "gpt-4-32k-0613": 32768,
+            "gpt-4-turbo": 128000,
+            "gpt-4-turbo-preview": 128000,
+            "gpt-4-1106-preview": 128000,
+            "gpt-4-0125-preview": 128000,
+            "gpt-4o": 128000,
+            "gpt-4o-mini": 128000,
+            "gpt-3.5-turbo": 16385,
+            "gpt-3.5-turbo-16k": 16385,
+            "gpt-3.5-turbo-0613": 4096,
+            "gpt-3.5-turbo-16k-0613": 16385,
+            "gpt-3.5-turbo-1106": 16385,
+            "gpt-3.5-turbo-0125": 16385,
+            "text-embedding-ada-002": 8191,
+            "text-embedding-3-small": 8191,
+            "text-embedding-3-large": 8191,
+        }
+        
         for model in getattr(response, "data", []):
             model_id = getattr(model, "id", None)
             if not model_id:
                 continue
-            context = getattr(model, "context_length", None)
+            
+            # Try to get context length from model or use known values
+            context = getattr(model, "context_length", None) or getattr(model, "context_window", None)
+            if not context:
+                # Try to match against known models
+                for known_model, known_context in CONTEXT_LENGTHS.items():
+                    if model_id.startswith(known_model):
+                        context = known_context
+                        break
+            
             models.append(ModelInfo(id=model_id, label=model_id, context_length=context))
+        
+        # Sort models by ID for easier browsing (GPT-4 models first, then GPT-3.5, then others)
+        def sort_key(m: ModelInfo) -> tuple:
+            id_lower = m.id.lower()
+            if id_lower.startswith("gpt-4o"):
+                return (0, m.id)
+            elif id_lower.startswith("gpt-4"):
+                return (1, m.id)
+            elif id_lower.startswith("gpt-3.5"):
+                return (2, m.id)
+            elif id_lower.startswith("text-embedding"):
+                return (3, m.id)
+            else:
+                return (4, m.id)
+        
+        models.sort(key=sort_key)
         return models
     except Exception as exc:  # pragma: no cover - depends on credentials
         logger.warning("Failed to list OpenAI models: %s", exc)

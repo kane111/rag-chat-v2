@@ -26,7 +26,6 @@ from docling.datamodel.pipeline_options import (
 )
 from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
-from hierarchical.postprocessor import ResultPostprocessor
 
 
 @dataclass
@@ -94,9 +93,6 @@ def _convert_with_docling_to_markdown(path: Path) -> str:
         )
         # Docling can take a path as source; it auto-detects format.
         result = converter.convert(str(path))
-        ResultPostprocessor(result).process()
-
-        
         return result.document.export_to_markdown()
         
     except Exception:

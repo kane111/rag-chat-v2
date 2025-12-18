@@ -135,8 +135,8 @@ export function SidebarContent({
   };
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="pb-4 shrink-0 border-b space-y-3 px-5 py-4">
+    <Card className="h-full flex flex-col w-full max-w-full overflow-hidden">
+      <CardHeader className="pb-4 shrink-0 border-b space-y-3 px-5 py-4 overflow-hidden">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0 flex-1">
             <p className="text-[10px] sm:text-xs uppercase text-muted-foreground font-semibold">
@@ -172,11 +172,11 @@ export function SidebarContent({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4 flex-1 overflow-hidden flex flex-col px-5 py-5 min-h-0">
+      <CardContent className="space-y-4 flex-1 overflow-hidden flex flex-col px-5 py-5 min-h-0 w-full max-w-full">
         <FileUploadZone onUpload={onUpload} disabled={uploading} />
 
-        <div className="rounded-lg border bg-muted/50 px-3 py-2 flex items-start justify-between gap-3 text-[11px]">
-          <div className="space-y-1 min-w-0 flex-1">
+        <div className="rounded-lg border bg-muted/50 px-3 py-2 flex items-start justify-between gap-3 text-[11px] w-full overflow-hidden">
+          <div className="space-y-1 min-w-0 flex-1 overflow-hidden">
             <p className="uppercase text-[10px] font-semibold text-muted-foreground">Chat scope</p>
             {selectedCount > 0 ? (
               <div className="flex items-center gap-1 flex-wrap mt-1">
@@ -223,8 +223,8 @@ export function SidebarContent({
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="gap-2 self-start">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 w-full max-w-full overflow-hidden">
+          <TabsList className="gap-2 self-start overflow-x-auto max-w-full">
             <TabsTrigger value="files" className="gap-2 text-xs">
               <Folder className="h-4 w-4" /> Files
               <Badge variant="secondary" className="text-[10px] ml-1">
@@ -245,8 +245,8 @@ export function SidebarContent({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="files" className="flex-1 min-h-0 mt-3">
-            <ScrollArea className="h-full pr-2">
+          <TabsContent value="files" className="flex-1 min-h-0 mt-3 w-full max-w-full overflow-hidden">
+            <ScrollArea className="h-full pr-2 w-full">
               <div className="space-y-2 sm:space-y-3 pb-4">
                 {files.length === 0 ? (
                   <div className="rounded-lg border bg-muted p-4 text-center">
@@ -277,11 +277,11 @@ export function SidebarContent({
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="chunks" className="flex-1 min-h-0 mt-3">
-            <div className="flex flex-col gap-3 h-full min-h-0">
+          <TabsContent value="chunks" className="flex-1 min-h-0 mt-3 w-full max-w-full overflow-hidden">
+            <div className="flex flex-col gap-3 h-full min-h-0 w-full overflow-hidden">
               {selectedChunkFile ? (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="space-y-2 w-full overflow-hidden">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground overflow-hidden">
                     <div>
                       <p className="font-semibold text-foreground text-sm">{selectedChunkFile.filename}</p>
                       <p className="text-[11px]">Showing extracted chunks</p>
@@ -291,7 +291,7 @@ export function SidebarContent({
                     </Badge>
                   </div>
                   {fileChunks.has(selectedChunkFile.id) ? (
-                    <ScrollArea className="h-80 pr-2">
+                    <ScrollArea className="h-80 pr-2 w-full">
                       <ChunksViewer chunks={fileChunks.get(selectedChunkFile.id)!} isContext={false} maxHeight="" />
                     </ScrollArea>
                   ) : (
@@ -304,11 +304,11 @@ export function SidebarContent({
             </div>
           </TabsContent>
 
-          <TabsContent value="preview" className="flex-1 min-h-0 mt-3 max-w-full overflow-x-hidden">
-            <div className="flex flex-col gap-3 h-full max-w-full overflow-x-hidden">
+          <TabsContent value="preview" className="flex-1 min-h-0 mt-3 w-full max-w-full overflow-hidden">
+            <div className="flex flex-col gap-3 h-full w-full max-w-full overflow-hidden">
               {selectedPreviewFile ? (
-                <div className="space-y-2 max-w-full overflow-hidden">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground gap-3">
+                <div className="space-y-2 w-full max-w-full overflow-hidden">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground gap-3 overflow-hidden">
                     <div className="min-w-0">
                       <p className="font-semibold text-foreground text-sm truncate" title={selectedPreviewFile.filename}>{selectedPreviewFile.filename}</p>
                       <p className="text-[11px]">Raw Markdown Preview</p>
@@ -335,11 +335,11 @@ export function SidebarContent({
                       </Button>
                     </div>
                   </div>
-                  <div className="flex-1 min-h-0 max-w-full overflow-x-hidden">
+                  <div className="flex-1 min-h-0 w-full overflow-hidden">
                     {selectedPreviewFile.raw_markdown ? (
-                      <ScrollArea className="h-72 sm:h-80 pr-2 max-w-full overflow-x-hidden">
-                        <div className="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
-                          <pre className="text-xs font-mono text-slate-700 dark:text-slate-200 whitespace-pre-wrap wrap-break-word leading-relaxed">
+                      <ScrollArea className="h-72 sm:h-80 pr-2 w-full">
+                        <div className="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-3 overflow-hidden">
+                          <pre className="text-xs font-mono text-slate-700 dark:text-slate-200 whitespace-pre-wrap wrap-break-word leading-relaxed overflow-x-auto max-w-full">
                             {selectedPreviewFile.raw_markdown}
                           </pre>
                         </div>

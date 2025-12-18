@@ -7,7 +7,7 @@ interface FileChunksViewerProps {
 
 export function FileChunksViewer({ chunks }: FileChunksViewerProps) {
   return (
-    <div className="ml-2 sm:ml-3 rounded-lg border bg-muted p-2 sm:p-3 flex flex-col h-80 overflow-hidden">
+    <div className="ml-2 sm:ml-3 rounded-lg border bg-muted p-2 sm:p-3 flex flex-col h-80 overflow-hidden w-full max-w-full">
       <div className="flex items-center gap-1 sm:gap-2 text-xs font-semibold text-foreground flex-wrap shrink-0 pb-2 border-b border-muted-foreground/20">
         <ClipboardList className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
         <span className="text-[10px] sm:text-xs">Chunks ({chunks.length})</span>
@@ -27,7 +27,7 @@ export function FileChunksViewer({ chunks }: FileChunksViewerProps) {
                   )}
                 </div>
               </div>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap wrap-break-word">
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap wrap-break-word overflow-hidden">
                 {chunk.content}
               </p>
             </div>

@@ -25,6 +25,30 @@ A modern, full-stack RAG (Retrieval-Augmented Generation) chat application with 
 
 ---
 
+## Product Screenshots
+
+### Main Chat Interface
+![RAG Chat - Main Interface](./public/screenshots/chat-interface.png)
+*The main chat interface with sidebar file management and real-time streaming responses*
+
+### Document Upload & Management
+![RAG Chat - File Upload](./public/screenshots/file-upload.png)
+*Drag-and-drop file upload with support for PDF, DOCX, and TXT files*
+
+### Context & Source Retrieval
+![RAG Chat - Context Panel](./public/screenshots/context-panel.png)
+*View retrieved chunks with file citations and page references*
+
+### Configuration Dashboard
+![RAG Chat - Configuration](./public/screenshots/config-page.png)
+*Configure AI providers, models, and RAG parameters*
+
+### Dark Mode Theme
+![RAG Chat - Dark Mode](./public/screenshots/dark-mode.png)
+*Beautiful dark mode theme with full support*
+
+---
+
 ## 2) Prerequisites
 - **Node.js** 18+ and npm
 - **Python** 3.9+ (3.11+ recommended for best compatibility)

@@ -48,7 +48,7 @@ export function FileListItem({
   };
 
   return (
-    <div className="rounded-lg border bg-card shadow-sm hover:border-primary transition">
+    <div className="rounded-lg border bg-card shadow-sm hover:border-primary transition w-full max-w-full overflow-hidden">
       {/* Header with filename and delete button */}
       <div className="flex items-center justify-between gap-3 px-4 py-3 border-b">
         <div className="flex items-center gap-2 min-w-0 flex-1">

@@ -52,8 +52,8 @@ export function MarkdownViewer({ markdown, filename }: MarkdownViewerProps) {
               </a>
             </Button>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 max-h-96 overflow-y-auto">
-            <pre className="text-xs font-mono text-slate-700 dark:text-slate-200 whitespace-pre-wrap wrap-break-word leading-relaxed">
+          <div className="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 max-h-96 overflow-y-auto overflow-x-hidden">
+            <pre className="text-xs font-mono text-slate-700 dark:text-slate-200 whitespace-pre-wrap wrap-break-word leading-relaxed overflow-hidden">
               {markdown}
             </pre>
           </div>

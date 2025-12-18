@@ -43,7 +43,7 @@ export function ChunksViewer({
   }
 
   return (
-    <div className={`rounded-lg border bg-muted p-2 sm:p-3 flex flex-col overflow-hidden ${isContext ? "space-y-2" : `${maxHeight}`}`}>
+    <div className={`rounded-lg border bg-muted p-2 sm:p-3 flex flex-col overflow-hidden w-full max-w-full ${isContext ? "space-y-2" : `${maxHeight}`}`}>
       {!isContext && (
         <div className="flex items-center gap-1 sm:gap-2 text-xs font-semibold text-foreground flex-wrap shrink-0 pb-2 border-b border-muted-foreground/20">
           <ClipboardList className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
@@ -76,7 +76,7 @@ export function ChunksViewer({
                       )}
                     </div>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap wrap-break-word">
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap wrap-break-word overflow-hidden">
                     {chunk.content}
                   </p>
                 </div>
@@ -116,7 +116,7 @@ export function ChunksViewer({
                   </Button>
 
                   {expandedIdx === idx && (
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground whitespace-pre-wrap wrap-break-word max-h-48 overflow-y-auto">
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground whitespace-pre-wrap wrap-break-word max-h-48 overflow-y-auto overflow-x-hidden">
                       {chunk.chunk}
                     </p>
                   )}

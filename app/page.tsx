@@ -176,7 +176,7 @@ export default function Home() {
 
                 {/* Knowledge base (desktop) */}
                 {isDesktop && (
-                  <div className="hidden lg:flex">
+                  <div className="hidden lg:flex w-115 min-w-115 max-w-90">
                     <SidebarContent
                       files={fileManagement.files}
                       uploading={fileManagement.uploading}
